@@ -17,7 +17,7 @@ git clone
 luca.varotto.5@phd.unipd.it
 
 ## Citation
-'''sh
+```sh
 @misc{varotto2021transmitter,
       title={Transmitter Discovery through Radio-Visual Probabilistic Active Sensing}, 
       author={Luca Varotto and Angelo Cenedese},
@@ -26,7 +26,7 @@ luca.varotto.5@phd.unipd.it
       archivePrefix={arXiv},
       primaryClass={cs.RO}
 }
-'''
+```
 ## References
 * https://arxiv.org/abs/2103.14965
 
