@@ -2,7 +2,10 @@
 ...
 
 ## Installation
-..
+Clone the repo
+'''sh
+git clone
+'''
 
 ## Dependencies
 ..
@@ -14,7 +17,7 @@
 luca.varotto.5@phd.unipd.it
 
 ## Citation
-'''bash
+'''sh
 @misc{varotto2021transmitter,
       title={Transmitter Discovery through Radio-Visual Probabilistic Active Sensing}, 
       author={Luca Varotto and Angelo Cenedese},
