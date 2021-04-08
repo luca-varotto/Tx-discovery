@@ -14,7 +14,7 @@
 luca.varotto.5@phd.unipd.it
 
 ## Citation
-'''
+'''bash
 @misc{varotto2021transmitter,
       title={Transmitter Discovery through Radio-Visual Probabilistic Active Sensing}, 
       author={Luca Varotto and Angelo Cenedese},
@@ -24,9 +24,8 @@ luca.varotto.5@phd.unipd.it
       primaryClass={cs.RO}
 }
 '''
-
 ## References
-[paper-url]: https://arxiv.org/abs/2103.14965
+* https://arxiv.org/abs/2103.14965
 
 ## Aknowledgements
 [SPARCS research group](https://sparcs.dei.unipd.it/)
