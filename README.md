@@ -3,9 +3,9 @@
 
 ## Installation
 Clone the repo
-'''sh
-git clone
-'''
+```sh
+git clone https://github.com/luca-varotto/Tx-discovery.git
+```
 
 ## Dependencies
 ..
