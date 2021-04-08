@@ -19,12 +19,12 @@ from pf import PF
 
 ############################################################################################################################
 
-MC_tests =3
+MC_tests =1
 want2plot = 1 if MC_tests ==1 else 0
 N_det = 20 # number of deterministic movements (pure exploration)
 N_tot = N_det + 100 #if MC_tests >1 else N_det + 300 # total number of movements
 change_time = int(N_tot+1) #if MC_tests >1 else int(N_tot/3)
-exp_types = 3
+exp_types = 1
 half_fov = np.pi/8
 
 performance = np.empty((MC_tests,N_tot,exp_types))
@@ -38,27 +38,34 @@ for MC_idx in range(MC_tests):
     print("MC test %d"%(MC_idx))
 
     # define the coordinates of the targets (each row, [x,y] coordinates of one target)
+    angles = []
     while True:
         tx = np.array([np.random.uniform(-5,5),np.random.uniform(-5,5)]) 
         if np.linalg.norm(tx) < 4:
             break
     trgt = tx
-    while True:
-        tx2 = np.random.uniform(-5,5,(1,2))
-        if  abs( np.linalg.norm(tx) - np.linalg.norm(tx2) ) > 1:
-            trgt = np.vstack((trgt, tx2))
-            break
-    n_targets = 10
-    for k in range(n_targets-2): 
-        while True:
-            new_target = np.random.uniform(-5,5,(1,2))
-            if abs( np.linalg.norm(tx) - np.linalg.norm(new_target) ) > 1:# \
-                # and abs(np.linalg.norm(tx2) -np.linalg.norm(new_target) ) > 1.5:
-                trgt = np.vstack((trgt, new_target))
-                break
 
     # define which target is the Tx
     tx_idx = 0
+
+    angles.append(np.arctan2(tx[1],tx[0]))
+    while True:
+        tx2 = np.random.uniform(-5,5,(1,2))
+        angle = np.arctan2( tx2[0,1],tx2[0,0] )
+        if abs( np.linalg.norm(tx) - np.linalg.norm(tx2) ) > 1 and not angle in angles:
+            trgt = np.vstack((trgt, tx2))
+            angles.append(angle)
+            break
+    n_targets = 20
+    for k in range(n_targets-2): 
+        while True:
+            new_target = np.random.uniform(-5,5,(1,2))
+            angle = np.arctan2( new_target[0,1],new_target[0,0] )
+            if abs( np.linalg.norm(tx) - np.linalg.norm(new_target) ) > 1 and not angle in angles:# \
+                # and abs(np.linalg.norm(tx2) -np.linalg.norm(new_target) ) > 1.5:
+                trgt = np.vstack((trgt, new_target))
+                angles.append(angle)
+                break
 
     # devices parameters
     fps = 30
@@ -164,9 +171,9 @@ for MC_idx in range(MC_tests):
             alpha_star = np.arctan2(trgt[tx_idx][1],trgt[tx_idx][0])
             # alpha_star = 2*np.pi + alpha_star if alpha_star < 0 else alpha_star
             x_2pi = 2*np.pi + x if x < 0 else x
-            opt = x
-            Delta = abs(alpha_star-opt) if abs(alpha_star-opt) <= np.pi else 2*np.pi-abs(alpha_star-opt)
-            performance[MC_idx,t,exp_type] = Delta if not fov_poly.contains(Point(trgt[tx_idx])) else 0
+            # opt = x
+            Delta = min( abs(alpha_star-opt) , 2*np.pi-abs(alpha_star-opt) ) # if abs(alpha_star-opt) <= np.pi else 2*np.pi-abs(alpha_star-opt)
+            performance[MC_idx,t,exp_type] = 1 if fov_opt.contains(Point(trgt[tx_idx])) else 0 #fov_poly.contains(Point(trgt[tx_idx])) else 0
 
             # find points inside FoV
             for i in range(np.shape(trgt)[0]):
@@ -205,8 +212,9 @@ for MC_idx in range(MC_tests):
             # compute MMSE estimate
             pf_pod.estimation(est_type='MAP')
 
-            Delta_t = abs(alpha_star-x) if abs(alpha_star-x) <= np.pi else 2*np.pi-abs(alpha_star-x)
-            QoC_actual,QoS_actual= BayOpt_modified.objective(x,E_pD,pD_meas,Delta_t,pD_learn.PLM(r0,n,np.linalg.norm(trgt[tx_idx])),tx)
+            Delta_t = min( abs(alpha_star-x) , 2*np.pi-abs(alpha_star-x) )# abs(alpha_star-x) if abs(alpha_star-x) <= np.pi else 2*np.pi-abs(alpha_star-x)
+            QoC_actual,QoS_actual= BayOpt_modified.objective(x,E_pD,pD_meas,\
+                Delta_t,pD_learn.PLM(r0,n,np.linalg.norm(tx)))
             # QoS_actual = l_pD[-1]
             QoC.append(QoC_actual)
             QoS.append(QoS_actual)
@@ -290,6 +298,8 @@ for MC_idx in range(MC_tests):
             model.fit(X, y)
 plt.ioff()
 
+isInsideFoV = np.where(performance<=half_fov, 1, 0)
+
 plt.figure(figsize=(9,6))
 plt.subplot(2,1,1)
 BayOpt_modified.plot(X, y, model)
@@ -297,6 +307,11 @@ plt.subplot(2,1,2)
 labels = ['QoC+QoS' ,'QoC only','QoS only','PF']
 colors = ['b','r','g','y']
 for exp_type in range(exp_types):
+
+    print(np.mean(performance[:,-1,exp_type],axis=0),
+            np.std(performance[:,-1,exp_type],axis=0))
+    print(np.mean(isInsideFoV[:,-1,exp_type],axis=0))
+
     label = labels[exp_type]
     col = colors[exp_type]
     plt.plot(np.mean(performance[:,:,exp_type],axis=0),label=label, color=col)

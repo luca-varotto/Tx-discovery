@@ -14,20 +14,13 @@ from tqdm import tqdm
 ############################################################################################################################
  
 # objective function
-def objective(x,E_pD,pD_meas,Delta,r, tx):
+def objective(x,E_pD,pD_meas,Delta,r):
 
-	# QoC function (i.e., RSSI)
-	# r_max = 50 # RSSI when main lobe is aligned with Tx
-	# Delta_r = 20 # RSSI excursion when main lobe is opposite to Tx
-	# a_c = -Delta_r/np.pi**2 # absolute value proportional to the main lobe of the Rx
-	# sigma_max = 4.0
-	# sigma_min = 1.0
-	# lamda = (sigma_max - sigma_min)/np.pi
-	# sigma = sigma_min + lamda * abs(x)  # noise proportional to the Tx-Rx alignment
-	# X_sigma = np.random.normal(loc=0, scale=sigma) 
-	# r = r_max + a_c*x**2 + X_sigma
-
-	QoC = max( abs(r)*(1-0.5*(Delta/(np.pi))**2) +np.random.normal(0,3) , 0)/35
+	# RSSI attenuation due to a non-isotropic radiaton pattern (second radio channel)
+	delta = 2/35
+	damp = 0.5
+	QoC =  max( delta*( abs(r)*(1-damp*(Delta/(np.pi))**2) +np.random.normal(0,3) ), 0.0)
+	# predicted target detectability and measured (with the first, isotropic, radio channel) 
 	QoS = -np.log10( abs(E_pD-pD_meas) ) #if abs(E_pD-pD_meas) < 1 else np.log10( abs(E_pD-pD_meas) )
 	return  QoC,QoS
 
