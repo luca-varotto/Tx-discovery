@@ -1,4 +1,4 @@
-## Tx-discovery
+# Tx-discovery
 ...
 
 ## Installation
@@ -26,7 +26,7 @@ luca.varotto.5@phd.unipd.it
 '''
 
 ## References
-[](https://arxiv.org/abs/2103.14965)
+[paper-url]: https://arxiv.org/abs/2103.14965
 
-# Aknowledgements
-..
+## Aknowledgements
+[SPARCS research group](https://sparcs.dei.unipd.it/)
